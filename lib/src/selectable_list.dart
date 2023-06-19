@@ -4,19 +4,19 @@ import 'package:flutter_desktop_widgets2/src/keyboard.dart';
 class SelectableList extends StatefulWidget {
 
   SelectableList({
-    Key key,
-    this.selectedIndex,
-    this.onSelectChange,
-    this.itemBuilder,
-    this.itemHeight,
+    Key? key,
+    required this.selectedIndex,
+    required this.onSelectChange,
+    required this.itemBuilder,
+    required this.itemHeight,
     this.itemsBeforeScroll = 3,
-    ScrollController controller,
-    this.itemCount,
-    this.onEnter,
-    this.padding,
-    this.focusNode,
-    this.onEscape,
-  }) : this.controller = controller?? ScrollController(), super(key: key);
+    required ScrollController controller,
+    required this.itemCount,
+    required this.onEnter,
+    required this.padding,
+    required this.focusNode,
+    required this.onEscape,
+  }) : this.controller = controller, super(key: key);
 
   final int selectedIndex;
   final ValueChanged<int> onSelectChange;
@@ -37,7 +37,7 @@ class SelectableList extends StatefulWidget {
 class _SelectableListState extends State<SelectableList> {
 
 
-  ScrollController controller;
+  ScrollController controller = ScrollController();
   
   int get shadowSelection => widget.selectedIndex?? 0;
 
@@ -114,13 +114,30 @@ class _SelectableListState extends State<SelectableList> {
       onUp: onUp,
       onDown: onDown,
       onEscape: () {
-        widget.onEscape?.call();
+        widget.onEscape.call();
+        return true;
       },
       onEnter: () {
-        widget.onEnter?.call();
+        widget.onEnter.call();
+        return false;
+      },
+      onBackspace: () {
+        print("InteractionKeyboard: onBackspace");
+        return false;
+      },
+      onSpace: () {
+        print("InteractionKeyboard: onSpace");
+        return false;
+      },
+      onDelete: () {
+        print("InteractionKeyboard: onDelete");
         return false;
       },
       focusNode: widget.focusNode,
+      onCtrlSpace: () {
+        print("InteractionKeyboard: onCtrlSpace");
+        return false;
+      },
       child: ListView.builder(
         padding: widget.padding,
         controller: controller,

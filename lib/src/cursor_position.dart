@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CursorPositionWidget extends StatefulWidget {
-  const CursorPositionWidget({Key key, this.child}) : super(key: key);
+  const CursorPositionWidget({Key? key, required this.child}) : super(key: key);
 
   final Widget child;
 
@@ -15,7 +15,7 @@ class CursorPositionWidget extends StatefulWidget {
 }
 
 class _CursorPositionWidgetState extends State<CursorPositionWidget> {
-  Offset currentPosition;
+  Offset currentPosition = Offset(0, 0);
 
   @override
   Widget build(BuildContext context) {

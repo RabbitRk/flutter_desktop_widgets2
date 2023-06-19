@@ -1,37 +1,33 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_desktop_widgets2/src/cursor_position.dart';
 
 Future<T> showDialogAndRestoreFocus<T>({
-  @required BuildContext context,
-  @required WidgetBuilder builder,
+  required BuildContext context,
+  required WidgetBuilder builder,
   bool restoreFocus = true,
 }) async {
-  var node = FocusScope
-      .of(context)
-      .focusedChild;
+  var node = FocusScope.of(context).focusedChild;
 
   var result = await showDialog<T>(
     context: context,
     builder: builder,
   );
 
-  if(restoreFocus) {
+  if (restoreFocus) {
     FocusScope.of(context).requestFocus(node);
   }
 
-  return result;
-
+  return result!;
 }
 
 Future<T> showDialogAtContext<T>({
-  @required BuildContext context,
-  @required WidgetBuilder builder,
-  @required Size size,
+  required BuildContext context,
+  required WidgetBuilder builder,
+  required Size size,
   bool restoreFocus = true,
   bool top = true,
 }) {
-  RenderBox box = context.findRenderObject();
+  RenderBox box = context.findRenderObject()! as RenderBox;
 
   var offset = box.localToGlobal(Offset.zero);
   final buttonWidth = box.size.width;
@@ -48,7 +44,6 @@ Future<T> showDialogAtContext<T>({
     size: size,
     restoreFocus: restoreFocus,
   );
-
 }
 
 /// Shows a dialog at a specific location.
@@ -58,91 +53,86 @@ Future<T> showDialogAtContext<T>({
 /// If [avoidBorder] is set, it will try to make it fit inside the available space
 /// flipping the layout to top/ left as necessary
 Future<T> showDialogAt<T>({
-  @required BuildContext context,
-  @required Offset position,
-  @required WidgetBuilder builder,
-  @required Size size,
+  required BuildContext context,
+  required Offset position,
+  required WidgetBuilder builder,
+  required Size size,
   bool restoreFocus = true,
   bool avoidBorder = true,
 }) async {
-
-
-  var node = FocusScope
-      .of(context)
-      .focusedChild;
+  var node = FocusScope.of(context).focusedChild;
 
   //FocusScope.of(context).requestFocus(null);
 
   Size rootSize = MediaQuery.of(context).size;
   Offset actualPosition = position;
 
-
-  if(position.dx + size.width > rootSize.width - 10) {
-    actualPosition = actualPosition.translate(-(size.width - (rootSize.width - position.dx)), 0);
+  if (position.dx + size.width > rootSize.width - 10) {
+    actualPosition = actualPosition.translate(
+        -(size.width - (rootSize.width - position.dx)), 0);
     assert(actualPosition.dx + size.width <= rootSize.width);
   }
-  if(position.dy + size.height > rootSize.height - 10) {
+  if (position.dy + size.height > rootSize.height - 10) {
     actualPosition = actualPosition.translate(0, -size.height);
   }
 
-  if(position.dx < 0){
+  if (position.dx < 0) {
     actualPosition = actualPosition.translate(-position.dx, 0);
   }
-  if(position.dy < 0) {
+  if (position.dy < 0) {
     actualPosition = actualPosition.translate(0, -position.dy);
   }
 
-  var result = await Navigator.of(context, rootNavigator: true).push<T>(_PositionedPopupRoute<T>(
+  var result = await Navigator.of(context, rootNavigator: true)
+      .push<T>(_PositionedPopupRoute<T>(
     builder: builder,
     position: actualPosition,
     size: size,
   ));
 
-  if(restoreFocus) {
+  if (restoreFocus) {
     FocusScope.of(context).requestFocus(node);
   }
 
-  return result;
+  return result!;
 }
 
-
-
-Future<T> showDialogAtCursor<T>({@required BuildContext context, @required WidgetBuilder builder, @required Size size, bool restoreFocus = true}) {
+Future<T> showDialogAtCursor<T>(
+    {required BuildContext context,
+    required WidgetBuilder builder,
+    required Size size,
+    bool restoreFocus = true}) {
   var position = CursorPositionWidget.of(context);
   return showDialogAt<T>(
-    context: context,
-    position: position,
-    builder: builder,
-    size: size,
-    restoreFocus: restoreFocus
-  );
+      context: context,
+      position: position,
+      builder: builder,
+      size: size,
+      restoreFocus: restoreFocus);
 }
 
-
-
-
 class _PositionedPopupRoute<T> extends PopupRoute<T> {
-
-
   final WidgetBuilder builder;
 
   final Offset position;
 
   final Size size;
 
-  _PositionedPopupRoute({this.size, this.builder, this.position});
+  _PositionedPopupRoute(
+      {required this.size, required this.builder, required this.position});
 
   @override
-  Color get barrierColor => null;
+  Color get barrierColor => Colors.black12;
 
   @override
   bool get barrierDismissible => true;
 
   @override
-  String get barrierLabel => null;
+  String get barrierLabel => "Label";
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     return _PositionedPopupRoutePage(
       position: position,
       child: builder(context),
@@ -152,14 +142,12 @@ class _PositionedPopupRoute<T> extends PopupRoute<T> {
 
   @override
   Duration get transitionDuration => Duration.zero;
-
 }
 
-
 class _PositionedPopupRoutePage<T> extends StatelessWidget {
-
-
-  const _PositionedPopupRoutePage({Key key, this.position, this.child, this.size}) : super(key: key);
+  const _PositionedPopupRoutePage(
+      {Key? key, required this.position, required this.child, required this.size})
+      : super(key: key);
 
   final Offset position;
 
@@ -178,16 +166,12 @@ class _PositionedPopupRoutePage<T> extends StatelessWidget {
       child: CustomSingleChildLayout(
         child: child,
         delegate: _PositionedPopupRouteLayout(position, size),
-
       ),
     );
   }
 }
 
-
-
 class _PositionedPopupRouteLayout extends SingleChildLayoutDelegate {
-
   final Offset position;
   final Size size;
 
@@ -199,9 +183,10 @@ class _PositionedPopupRouteLayout extends SingleChildLayoutDelegate {
   Size getSize(BoxConstraints constraints) => size;
 
   @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) => BoxConstraints.tight(size);
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints.tight(size);
 
   @override
-  bool shouldRelayout(_PositionedPopupRouteLayout oldDelegate) => oldDelegate.position != position;
-
+  bool shouldRelayout(_PositionedPopupRouteLayout oldDelegate) =>
+      oldDelegate.position != position;
 }

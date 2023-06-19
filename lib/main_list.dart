@@ -1,10 +1,9 @@
-
 import 'package:flutter/material.dart';
-
 
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
 import 'package:flutter_desktop_widgets2/src/selectable_list.dart';
+
 void main() {
   debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   runApp(new MyApp());
@@ -24,16 +23,15 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
-  int selection;
+  int selection = 0;
+  ScrollController controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -64,15 +62,20 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Container(
                 height: 80,
-                color: selection == index? Colors.blue: null,
+                color: selection == index ? Colors.blue : null,
                 padding: EdgeInsets.all(8),
                 child: Text("Item $index"),
               ),
             );
           },
+          padding: EdgeInsets.zero,
+          focusNode: FocusNode(),
+          onEscape: () {
+            return true;
+          },
+          controller: controller,
         ),
       ),
     );
   }
 }
-

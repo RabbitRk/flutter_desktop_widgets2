@@ -8,17 +8,17 @@ typedef KeyCallback = bool Function();
 /// Wrap the whole area which should respond the actions in this widget
 class InteractionKeyboard extends StatefulWidget {
   const InteractionKeyboard({
-    Key key,
-    this.onBackspace,
-    this.child,
-    this.onDown,
-    this.onUp,
-    this.onSpace,
-    this.onEnter,
-    this.onCtrlSpace,
-    this.onEscape,
-    this.focusNode,
-    this.onDelete,
+    Key? key,
+    required this.onBackspace,
+    required this.child,
+    required this.onDown,
+    required this.onUp,
+    required this.onSpace,
+    required this.onEnter,
+    required this.onCtrlSpace,
+    required this.onEscape,
+    required this.focusNode,
+    required this.onDelete,
     this.debugLabel = "No label",
     this.isScope = false,
     this.autofocus = false,
@@ -45,7 +45,8 @@ class InteractionKeyboard extends StatefulWidget {
 }
 
 class _InteractionKeyboardState extends State<InteractionKeyboard> {
-  FocusNode focusNode;
+  late FocusNode focusNode;
+  late FocusScopeNode focusScopeNode;
 
   bool focusedOnce = false;
 
@@ -54,12 +55,13 @@ class _InteractionKeyboardState extends State<InteractionKeyboard> {
   @override
   void initState() {
     super.initState();
-    if(widget.focusNode == null) {
+    if (widget.focusNode == null) {
       focusNode = FocusNode();
     } else {
       focusNode = widget.focusNode;
     }
 
+    focusScopeNode = FocusScopeNode();
     /*attachment = focusNode.attach(context);
     focusNode.addListener(() {
       print("Hey");
@@ -70,11 +72,12 @@ class _InteractionKeyboardState extends State<InteractionKeyboard> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if(widget.focusNode == null && !focusedOnce) {
+    if (widget.focusNode == null && !focusedOnce) {
       //FocusScope.of(context).requestFocus(focusNode);
       focusedOnce = true;
     }
   }
+
   @override
   void dispose() {
     //focusNode.dispose();
@@ -86,19 +89,15 @@ class _InteractionKeyboardState extends State<InteractionKeyboard> {
     // widget.onBackspace();
     // }
 
-
-    if (!(event is RawKeyDownEvent || !(event is RawKeyUpEvent)))
-      return false;
-
+    if (!(event is RawKeyDownEvent || !(event is RawKeyUpEvent))) return false;
 
     var i = event.logicalKey.keyId;
 
     assert(event is RawKeyDownEvent);
     event = event as RawKeyDownEvent;
 
-
     var hold = _fireKey(event, i);
-    if(hold != null && hold) {
+    if (hold) {
       _postDelayed(event, i, 500);
     }
 
@@ -107,81 +106,74 @@ class _InteractionKeyboardState extends State<InteractionKeyboard> {
 
   void _postDelayed(RawKeyEvent event, int i, int millis) {
     Future.delayed(Duration(milliseconds: millis)).then((_) {
-      if(RawKeyboard.instance.keysPressed.map((it) => it.keyId).contains(i)) {
+      if (RawKeyboard.instance.keysPressed.map((it) => it.keyId).contains(i)) {
         _fireKey(event, i);
         _postDelayed(event, i, 50);
       }
     });
   }
 
-
   bool isKeyPressed(int code) {
-    return RawKeyboard.instance.keysPressed.map((it) => it.keyId).contains(code);
+    return RawKeyboard.instance.keysPressed
+        .map((it) => it.keyId)
+        .contains(code);
   }
-
 
   /// Returns whether it forwarded the event
   bool _fireKey(RawKeyEvent event, int id) {
-
     print(event.logicalKey.keyId);
-    switch(id) {
+    switch (id) {
       case 4295426165:
-      // This is the backspace key, I disabled it because it was causing a bug
-      // with the backspace inside a text field. For now only the "del" key work
-      // to delete widgets
-      return widget.onBackspace?.call();
-        break;
+        // This is the backspace key, I disabled it because it was causing a bug
+        // with the backspace inside a text field. For now only the "del" key work
+        // to delete widgets
+        return widget.onBackspace.call();
       case 114:
-        return widget.onDelete?.call();
-        break;
+        return widget.onDelete.call();
       case 106:
-        return widget.onUp?.call();
-        break;
+        return widget.onUp.call();
       case 108:
-        return widget.onDown?.call();
-        break;
+        return widget.onDown.call();
       case 100:
-        if(isKeyPressed(1108101562709)) {
-          return widget.onCtrlSpace?.call();
+        if (isKeyPressed(1108101562709)) {
+          return widget.onCtrlSpace.call();
         } else {
-          return widget.onSpace?.call();
+          return widget.onSpace.call();
         }
-        break;
       case 1108101562395:
-        return widget.onEscape?.call();
-        break;
+        return widget.onEscape.call();
       case 54:
-        return widget.onEnter?.call();
-        break;
+        return widget.onEnter.call();
       default:
         print("Class keyboard.dart $id");
         return false;
     }
   }
+
   //
 
   @override
   Widget build(BuildContext context) {
-    Widget child;
-    if(widget.useRawKeyboardListener) {
+    Widget child = Container();
+    if (widget.useRawKeyboardListener) {
       return RawKeyboardListener(
         focusNode: focusNode,
         onKey: (it) => onKey(null, it),
         child: widget.child,
       );
     }
-    return widget.isScope?
-    FocusScope(
-      onKey: onKey,
-      node: focusNode,
-      child: child?? widget.child,
-      autofocus: widget.autofocus,
-    ) :
-    Focus(
-      onKey: onKey,
-      focusNode: focusNode,
-      child: child?? widget.child,
-      autofocus: widget.autofocus,
-    );
+    return widget.isScope
+        ? FocusScope(
+            // onKey: onKey,
+            node: focusScopeNode,
+            child: child,
+            autofocus: widget.autofocus,
+          )
+        : Focus(
+            // onKey: onKey,
+            focusNode: focusNode,
+            child: child,
+            autofocus: widget.autofocus,
+          );
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class FocusArea extends StatefulWidget {
 
-  const FocusArea({Key key, this.outline = true, this.child, this.node}) : super(key: key);
+  const FocusArea({Key? key, this.outline = true, required this.child, required this.node}) : super(key: key);
   
   final bool outline;
   final Widget child;
@@ -16,7 +16,7 @@ class FocusArea extends StatefulWidget {
 class _FocusAreaState extends State<FocusArea> {
 
 
-  bool hasFocus;
+  bool hasFocus = false;
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class _FocusAreaState extends State<FocusArea> {
     super.dispose();
   }
 
-  BoxDecoration get decoration {
+  BoxDecoration? get decoration {
     if(!widget.outline) return null;
     if(hasFocus) {
       return BoxDecoration(
